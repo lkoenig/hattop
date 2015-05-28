@@ -6,6 +6,14 @@
 #include <unistd.h>
 #include "hattop.h"
 
+const char* hattop_asci_logo = "\
+  ___   \n\
+ |   |  \n\
+_|___|_ \n\
+ -o-o-  \n\
+  www   \n\
+.HaTToP \n";
+
 struct hattop_t
 {
     int sockfd;
@@ -69,8 +77,9 @@ void hattop_accept_connection(hattop_t *state)
 
     /* Dummy handler for testing */
     {
-        char buf[] = "HTTP/1.1 200\r\n\r\nHello, world!\n";
-        send(clientfd, buf, strlen(buf), 0);
+        char head[] = "HTTP/1.1 200\r\n\r\n";
+        send(clientfd, head, strlen(head), 0);
+        send(clientfd, hattop_asci_logo, strlen(hattop_asci_logo), 0);
         close(clientfd);
     }
 }
