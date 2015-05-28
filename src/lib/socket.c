@@ -44,6 +44,14 @@ socket_t SOCKET_accept(socket_t s, int timeout_ms)
     struct sockaddr_in cli_addr;
     clilen = sizeof(cli_addr);
 
+    /* Set timeout of accept */
+    {
+        struct timeval timeout;
+        timeout.tv_sec = timeout_ms / 1000;
+        timeout.tv_usec = (timeout_ms % 1000) * 1000;
+        setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+    }
+
     /* Accept client connection */
     clientfd = accept(s, (struct sockaddr *)&cli_addr, &clilen);
 

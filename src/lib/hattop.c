@@ -44,6 +44,7 @@ int hattop_listen(hattop_t *state, short portno)
             SOCKET_send(s_client, hattop_asci_logo, strlen(hattop_asci_logo));
             SOCKET_close(s_client);
         }
+        fprintf(stderr, ".");
     }
 
     return 0;
