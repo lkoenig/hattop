@@ -14,9 +14,7 @@ int main()
     }
 
     hattop_listen(srv, 8080);
-    hattop_accept_connection(srv);
 
-    /* Quit after serving one request (lazy) */
     hattop_destroy(srv);
     return 0;
 }

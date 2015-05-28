@@ -14,8 +14,5 @@ void hattop_destroy(hattop_t *state);
 /* Start listening for connections */
 int hattop_listen(hattop_t *state, short portno);
 
-/* Accept incoming client connection */
-void hattop_accept_connection(hattop_t *state);
-
 #endif
 
