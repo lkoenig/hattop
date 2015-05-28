@@ -40,6 +40,8 @@ int hattop_listen(hattop_t *state, short portno)
         if(SOCKET_is_valid(s_client)) {
             /* Dummy handler for testing */
             char head[] = "HTTP/1.1 200\r\n\r\n";
+            char recv_buf[8192];
+            SOCKET_recv(s_client, recv_buf, sizeof(recv_buf));
             SOCKET_send(s_client, head, strlen(head));
             SOCKET_send(s_client, hattop_asci_logo, strlen(hattop_asci_logo));
             SOCKET_close(s_client);

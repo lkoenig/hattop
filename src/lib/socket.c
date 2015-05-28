@@ -68,6 +68,11 @@ void SOCKET_send(socket_t s, const char *buf, int buflen)
     send(s, buf, buflen, 0);
 }
 
+int SOCKET_recv(socket_t s, char *buf, int bufsize)
+{
+    return (int)recv(s, (void*)buf, (size_t)bufsize, 0);
+}
+
 void SOCKET_close(socket_t s)
 {
     close(s);

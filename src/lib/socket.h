@@ -15,6 +15,9 @@ int SOCKET_is_valid(socket_t s);
 /* Send data over socket */
 void SOCKET_send(socket_t s, const char *buf, int buflen);
 
+/* Receive data from socket */
+int SOCKET_recv(socket_t s, char *buf, int bufsize);
+
 /* Close socket */
 void SOCKET_close(socket_t s);
 
