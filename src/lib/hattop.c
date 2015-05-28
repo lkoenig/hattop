@@ -3,6 +3,7 @@
 #include <string.h>
 #include "hattop.h"
 #include "socket.h"
+#include "response.h"
 
 #define REQUEST_BUF_SIZE 8192
 
@@ -44,7 +45,6 @@ int hattop_listen(hattop_t *state, short portno)
         socket_t s_client = SOCKET_accept(s, 1000);
         if(SOCKET_is_valid(s_client)) {
             /* Dummy handler for testing */
-            char head[] = "HTTP/1.1 200\r\n\r\n";
             char recv_buf[REQUEST_BUF_SIZE];
             int bytes_read = 0;
 
@@ -55,6 +55,8 @@ int hattop_listen(hattop_t *state, short portno)
                 if(ret > 0) {
                     bytes_read += ret;
                     recv_buf[bytes_read] = '\0';
+
+                    /* Find the end of the request */
                     if(strstr(recv_buf, "\r\n\r\n")) {
                         fprintf(stderr, "%s", recv_buf);
                         break;
@@ -62,8 +64,7 @@ int hattop_listen(hattop_t *state, short portno)
                 }
             } while(bytes_read < REQUEST_BUF_SIZE - 1);
 
-            SOCKET_send(s_client, head, strlen(head));
-            SOCKET_send(s_client, hattop_asci_logo, strlen(hattop_asci_logo));
+            RESPONSE_simple(s_client, "text/plain", hattop_asci_logo, strlen(hattop_asci_logo));
             SOCKET_close(s_client);
         }
         fprintf(stderr, ".");
