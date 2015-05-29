@@ -3,6 +3,8 @@ set(SRC
     hattop.h
     response.c
     response.h
+    request.c
+    request.h
     socket.c
     socket.h
     thread.c

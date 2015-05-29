@@ -3,17 +3,9 @@
 #include <string.h>
 #include "hattop.h"
 #include "socket.h"
-#include "response.h"
+#include "request.h"
 
 #define REQUEST_BUF_SIZE 8192
-
-const char* hattop_asci_logo = "\
-  ___   \n\
- |   |  \n\
-_|___|_ \n\
- -o-o-  \n\
-  www   \n\
-.HaTToP \n";
 
 struct hattop_t
 {
@@ -49,7 +41,6 @@ int hattop_listen(hattop_t *state, short portno)
             int bytes_read = 0;
 
             /* Read request */
-            fprintf(stderr, "\n");
             do {
                 int ret = SOCKET_recv(s_client, &recv_buf[bytes_read], REQUEST_BUF_SIZE - bytes_read - 1);
                 if(ret > 0) {
@@ -58,13 +49,12 @@ int hattop_listen(hattop_t *state, short portno)
 
                     /* Find the end of the request */
                     if(strstr(recv_buf, "\r\n\r\n")) {
-                        fprintf(stderr, "%s", recv_buf);
                         break;
                     }
                 }
             } while(bytes_read < REQUEST_BUF_SIZE - 1);
 
-            RESPONSE_simple(s_client, "text/plain", hattop_asci_logo, strlen(hattop_asci_logo));
+            REQUEST_parse(s_client, recv_buf);
             SOCKET_close(s_client);
         }
         fprintf(stderr, ".");
