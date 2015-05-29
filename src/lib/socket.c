@@ -50,7 +50,6 @@ socket_t SOCKET_create(short portno)
 
     /* Create socket */
     if((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        int err = errno;
         perror("Could not create socket");
         return -1;
     }
