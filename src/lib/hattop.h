@@ -4,11 +4,7 @@
 /* Request Handler */
 typedef void (*handler_t)(void *connection, const char *uri);
 
-/* Webserver state */
-typedef struct hattop_t
-{
-    handler_t handler;
-} hattop_t;
+typedef struct hattop_t hattop_t;
 
 /* Create an web server instance */
 hattop_t *hattop_create();
@@ -20,7 +16,10 @@ void hattop_destroy(hattop_t *state);
 void hattop_register_handler(hattop_t *state, handler_t handler);
 
 /* Start listening for connections */
-int hattop_listen(hattop_t *state, short portno);
+int hattop_start_serving(hattop_t *state, short portno);
+
+/* Stop listening for connections */
+void hattop_stop_serving(hattop_t *state);
 
 /* Send HTTP response to client */
 void hattop_response_simple(void *connection, const char *content_type, const char *body, int body_len);

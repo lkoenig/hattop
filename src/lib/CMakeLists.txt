@@ -5,6 +5,7 @@ set(SRC
     request.h
     socket.c
     socket.h
+    structs.h
     thread.c
     thread.h)
 

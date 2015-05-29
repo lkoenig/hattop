@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "hattop.h"
+#include "structs.h"
 #include "socket.h"
 #include "request.h"
 
@@ -11,6 +12,8 @@ hattop_t *hattop_create()
 {
     hattop_t *state = (hattop_t*)malloc(sizeof(hattop_t));
     if(state) {
+        state->server_thread = 0;
+        state->continue_serving = 0;
         state->handler = NULL;
     }
     return state;
@@ -26,16 +29,17 @@ void hattop_register_handler(hattop_t *state, handler_t handler)
     state->handler = handler;
 }
 
-int hattop_listen(hattop_t *state, short portno)
+static void *hattop_server_thread(void *arg)
 {
     socket_t s;
-    s = SOCKET_create(portno);
+    hattop_t *state = (hattop_t*)arg;
+    s = SOCKET_create(state->portno);
     if(!SOCKET_is_valid(s)) {
-        return -1;
+        return NULL;
     }
 
-    while(1) {
-        socket_t s_client = SOCKET_accept(s, 1000);
+    while(state->continue_serving) {
+        socket_t s_client = SOCKET_accept(s, 100);
         if(SOCKET_is_valid(s_client)) {
             /* Dummy handler for testing */
             char recv_buf[REQUEST_BUF_SIZE];
@@ -59,8 +63,24 @@ int hattop_listen(hattop_t *state, short portno)
             SOCKET_close(s_client);
         }
     }
+}
+
+int hattop_start_serving(hattop_t *state, short portno)
+{
+    state->portno = portno;
+    state->continue_serving = 1;
+    THREAD_create(&state->server_thread, hattop_server_thread, state);
 
     return 0;
+}
+
+void hattop_stop_serving(hattop_t *state)
+{
+    if(state->server_thread) {
+        state->continue_serving = 0;
+        THREAD_join(state->server_thread);
+        state->server_thread = 0;
+    }
 }
 
 void hattop_response_simple(void *connection, const char *content_type, const char *body, int body_len)

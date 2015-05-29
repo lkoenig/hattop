@@ -32,7 +32,11 @@ int main()
 
     hattop_register_handler(srv, handler);
 
-    hattop_listen(srv, 8080);
+    hattop_start_serving(srv, 8080);
+    printf("Press RETURN to quit\n");
+    getchar();
+    printf("Exiting");
+    hattop_stop_serving(srv);
 
     hattop_destroy(srv);
     return 0;

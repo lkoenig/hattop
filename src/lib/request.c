@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "request.h"
+#include "structs.h"
 
 void REQUEST_parse(hattop_t *state, socket_t s, const char *request)
 {
