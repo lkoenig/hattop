@@ -8,6 +8,11 @@
 
 #define REQUEST_BUF_SIZE 8192
 
+typedef struct {
+    hattop_t *state;
+    socket_t s;
+} client_thread_arg_t;
+
 hattop_t *hattop_create()
 {
     hattop_t *state = (hattop_t*)malloc(sizeof(hattop_t));
@@ -29,7 +34,36 @@ void hattop_register_handler(hattop_t *state, handler_t handler)
     state->handler = handler;
 }
 
-static void *hattop_server_thread(void *arg)
+static void *hattop_client_thread(void *arg)
+{
+    char recv_buf[REQUEST_BUF_SIZE];
+    int bytes_read = 0;
+    client_thread_arg_t *thread_arg = (client_thread_arg_t*)arg;
+    hattop_t *state = thread_arg->state;
+    socket_t s = thread_arg->s;
+
+    /* Free memory used for arg passing */
+    free(thread_arg);
+
+    /* Read request */
+    do {
+        int ret = SOCKET_recv(s, &recv_buf[bytes_read], REQUEST_BUF_SIZE - bytes_read - 1);
+        if(ret > 0) {
+            bytes_read += ret;
+            recv_buf[bytes_read] = '\0';
+
+            /* Find the end of the request */
+            if(strstr(recv_buf, "\r\n\r\n")) {
+                break;
+            }
+        }
+    } while(bytes_read < REQUEST_BUF_SIZE - 1);
+
+    REQUEST_parse(state, s, recv_buf);
+    SOCKET_close(s);
+}
+
+static void *hattop_listen_thread(void *arg)
 {
     socket_t s;
     hattop_t *state = (hattop_t*)arg;
@@ -41,26 +75,10 @@ static void *hattop_server_thread(void *arg)
     while(state->continue_serving) {
         socket_t s_client = SOCKET_accept(s, 100);
         if(SOCKET_is_valid(s_client)) {
-            /* Dummy handler for testing */
-            char recv_buf[REQUEST_BUF_SIZE];
-            int bytes_read = 0;
-
-            /* Read request */
-            do {
-                int ret = SOCKET_recv(s_client, &recv_buf[bytes_read], REQUEST_BUF_SIZE - bytes_read - 1);
-                if(ret > 0) {
-                    bytes_read += ret;
-                    recv_buf[bytes_read] = '\0';
-
-                    /* Find the end of the request */
-                    if(strstr(recv_buf, "\r\n\r\n")) {
-                        break;
-                    }
-                }
-            } while(bytes_read < REQUEST_BUF_SIZE - 1);
-
-            REQUEST_parse(state, s_client, recv_buf);
-            SOCKET_close(s_client);
+            client_thread_arg_t *thread_arg = malloc(sizeof(client_thread_arg_t)); /* Freed by client thread */
+            thread_arg->state = state;
+            thread_arg->s = s_client;
+            THREAD_create(NULL, hattop_client_thread, thread_arg);
         }
     }
 
@@ -71,7 +89,7 @@ int hattop_start_serving(hattop_t *state, short portno)
 {
     state->portno = portno;
     state->continue_serving = 1;
-    THREAD_create(&state->server_thread, hattop_server_thread, state);
+    THREAD_create(&state->server_thread, hattop_listen_thread, state);
 
     return 0;
 }

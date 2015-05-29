@@ -3,11 +3,24 @@
 
 void THREAD_create(thread_t *thread, void *(*thread_function)(void*), void *arg)
 {
+    if(thread) {
 #ifdef _WIN32
-    *thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)*thread_function, arg, 0, NULL);
+        *thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)*thread_function, arg, 0, NULL);
 #else
-    pthread_create(thread, NULL, thread_function, arg);
+        /* Joinable thread */
+        pthread_create(thread, NULL, thread_function, arg);
 #endif
+    } else {
+        /* Detached thread */
+        thread_t tmp;
+#ifdef _WIN32
+        tmp = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)*thread_function, arg, 0, NULL);
+        CloseHandle(tmp);
+#else
+        pthread_create(&tmp, NULL, thread_function, arg);
+        pthread_detach(tmp);
+#endif
+    }
 }
 
 void THREAD_join(thread_t thread)
