@@ -9,7 +9,7 @@ enum hattest_status {
 };
 
 static int test_id = 0;
-#define RUN_TEST(foo, ...) test_id++; printf( "%i: " #foo "("#__VA_ARGS__") ", test_id); if(foo(#__VA_ARGS__) != 0){printf("FAIL\n"); exit(test_id);}else{printf("PASS\n");}
+#define RUN_TEST(foo, ...) test_id++; printf( "%i: " #foo "("#__VA_ARGS__") ", test_id); if(foo(#__VA_ARGS__) != HATTEST_PASS){printf("FAIL\n"); exit(test_id);}else{printf("PASS\n");}
 
 enum hattest_status bar(){
     return HATTEST_PASS;
