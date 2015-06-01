@@ -11,4 +11,7 @@ set(SRC
     thread.h)
 
 add_library(hattop ${SRC})
+IF (WIN32)
+target_link_libraries(hattop WSock32.Lib)
+ENDIF()
 

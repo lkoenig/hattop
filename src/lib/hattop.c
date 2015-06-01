@@ -9,6 +9,7 @@
 
 struct hattop_t
 {
+    int foo;
 };
 
 hattop_t *hattop_create()

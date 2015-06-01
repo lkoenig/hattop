@@ -1,9 +1,14 @@
-#include <netdb.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include "socket.h"
+
+#ifdef _WIN32
+#include "winsock.h"
+#else
+#include <unistd.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#endif
 
 socket_t SOCKET_create(short portno)
 {
