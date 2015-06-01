@@ -76,13 +76,13 @@ socket_t SOCKET_accept(socket_t s, int timeout_ms)
     struct sockaddr_in cli_addr;
     clilen = sizeof(cli_addr);
 
-    /* check if incomming connection pending */
     FD_ZERO(&readSet);
     FD_SET(s, &readSet);
 
     timeout.tv_sec = timeout_ms / 1000;
     timeout.tv_usec = (timeout_ms % 1000) * 1000;
 
+    /* check if incomming connection pending */
     if (select(s, &readSet, NULL, NULL, &timeout) == 1)
     {
         /* accept connection */
