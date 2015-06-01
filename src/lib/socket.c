@@ -69,25 +69,34 @@ socket_t SOCKET_create(short portno)
 
 socket_t SOCKET_accept(socket_t s, int timeout_ms)
 {
-    fd_set readSet;
+    socket_t clientfd;
     struct timeval timeout;
-    socket_t clientfd = -1;
     int clilen;
     struct sockaddr_in cli_addr;
+
     clilen = sizeof(cli_addr);
-
-    FD_ZERO(&readSet);
-    FD_SET(s, &readSet);
-
     timeout.tv_sec = timeout_ms / 1000;
     timeout.tv_usec = (timeout_ms % 1000) * 1000;
 
-    /* check if incomming connection pending */
-    if (select(s, &readSet, NULL, NULL, &timeout) == 1)
+#ifdef _WIN32
     {
-        /* accept connection */
-        clientfd = accept(s, (struct sockaddr *)&cli_addr, &clilen);
+        // todo: not thread safe
+        clientfd = -1;
+        fd_set readSet;
+        FD_ZERO(&readSet);
+        FD_SET(s, &readSet);
+
+        /* check if incomming connection pending */
+        if (select(s, &readSet, NULL, NULL, &timeout) == 1)
+        {
+            /* accept connection */
+            clientfd = accept(s, (struct sockaddr *)&cli_addr, &clilen);
+        }
     }
+#else
+    setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+    clientfd = accept(s, (struct sockaddr *)&cli_addr, &clilen);
+#endif
 
     return clientfd;
 }
