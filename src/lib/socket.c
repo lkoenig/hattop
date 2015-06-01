@@ -69,18 +69,20 @@ socket_t SOCKET_create(short portno)
 
 socket_t SOCKET_accept(socket_t s, int timeout_ms)
 {
+    fd_set readSet;
+    struct timeval timeout;
     socket_t clientfd = -1;
     int clilen;
     struct sockaddr_in cli_addr;
     clilen = sizeof(cli_addr);
 
     /* check if incomming connection pending */
-    fd_set readSet;
     FD_ZERO(&readSet);
     FD_SET(s, &readSet);
-    struct timeval timeout;
+
     timeout.tv_sec = timeout_ms / 1000;
     timeout.tv_usec = (timeout_ms % 1000) * 1000;
+
     if (select(s, &readSet, NULL, NULL, &timeout) == 1)
     {
         /* accept connection */
