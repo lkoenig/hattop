@@ -4,10 +4,25 @@
 
 #ifdef _WIN32
 #include "winsock.h"
+int platform_bootstrap(){
+    WSADATA wsaData;
+    int res;
+    // Initialize Winsock
+    res = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (res != 0) {
+        perror("WSAStartup failed");
+        return -1;
+    }
+    return 0;
+}
+void close(socket_t s){};
 #else
 #include <unistd.h>
 #include <netdb.h>
 #include <netinet/in.h>
+int platform_bootstrap(){
+    return 0;
+}
 #endif
 
 socket_t SOCKET_create(short portno)
@@ -15,8 +30,15 @@ socket_t SOCKET_create(short portno)
     socket_t s;
     struct sockaddr_in serv_addr;
 
+    /* Platform init. */
+    if ((s = platform_bootstrap()) < 0) {
+        perror("Could not create socket");
+        return -1;
+    }
+
     /* Create socket */
     if((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        int err = errno;
         perror("Could not create socket");
         return -1;
     }
