@@ -19,10 +19,6 @@ int close(socket_t s){
     return closesocket(s);
 };
 
-void SOCKET_set_rcv_timeout(socket_t s, int timeout_ms){
-    setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout_ms, sizeof(timeout_ms));
-}
-
 #else
 #include <unistd.h>
 #include <netdb.h>
@@ -30,13 +26,6 @@ void SOCKET_set_rcv_timeout(socket_t s, int timeout_ms){
 
 int platform_bootstrap(){
     return 0;
-}
-
-void SOCKET_set_rcv_timeout(socket_t s, int timeout_ms){
-    struct timeval timeout;
-    timeout.tv_sec = timeout_ms / 1000;
-    timeout.tv_usec = (timeout_ms % 1000) * 1000;
-    setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
 }
 
 #endif //_WIN32
@@ -80,16 +69,23 @@ socket_t SOCKET_create(short portno)
 
 socket_t SOCKET_accept(socket_t s, int timeout_ms)
 {
-    socket_t clientfd = 0;
+    socket_t clientfd = -1;
     int clilen;
     struct sockaddr_in cli_addr;
     clilen = sizeof(cli_addr);
 
-    /* Set timeout of accept */
-    SOCKET_set_rcv_timeout(s, timeout_ms);
-
-    /* Accept client connection */
-    clientfd = accept(s, (struct sockaddr *)&cli_addr, &clilen);
+    /* check if incomming connection pending */
+    fd_set readSet;
+    FD_ZERO(&readSet);
+    FD_SET(s, &readSet);
+    struct timeval timeout;
+    timeout.tv_sec = timeout_ms / 1000;
+    timeout.tv_usec = (timeout_ms % 1000) * 1000;
+    if (select(s, &readSet, NULL, NULL, &timeout) == 1)
+    {
+        /* accept connection */
+        clientfd = accept(s, (struct sockaddr *)&cli_addr, &clilen);
+    }
 
     return clientfd;
 }

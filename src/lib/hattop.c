@@ -39,7 +39,7 @@ static void *hattop_server_thread(void *arg)
     }
 
     while(state->continue_serving) {
-        socket_t s_client = SOCKET_accept(s, 100);
+        socket_t s_client = SOCKET_accept(s, 1000);
         if(SOCKET_is_valid(s_client)) {
             /* Dummy handler for testing */
             char recv_buf[REQUEST_BUF_SIZE];
