@@ -6,27 +6,11 @@
 #ifdef _WIN32
 #include "winsock2.h"
 
-int platform_bootstrap(){
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        perror("WSAStartup failed");
-        return -1;
-    }
-    return 0;
-}
-
-int close(socket_t s){
-    return closesocket(s);
-};
-
-#else
+#else /* Linux, etc */
 #include <unistd.h>
 #include <netdb.h>
 #include <netinet/in.h>
-
-int platform_bootstrap(){
-    return 0;
-}
+#define INVALID_SOCKET -1
 
 #endif //_WIN32
 
@@ -35,15 +19,22 @@ socket_t SOCKET_create(short portno)
     socket_t s;
     struct sockaddr_in serv_addr;
 
-    /* Platform init. */
-    if ((s = platform_bootstrap()) < 0) {
-        return -1;
+#ifdef _WIN32
+    static int first_run = 1;
+    if(first_run) {
+        WSADATA wsaData;
+        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+            perror("WSAStartup failed");
+            return INVALID_SOCKET;
+        }
+        first_run = 0;
     }
+#endif
 
     /* Create socket */
-    if((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
         perror("Could not create socket");
-        return -1;
+        return INVALID_SOCKET;
     }
 
     /* Set up server address */
@@ -55,13 +46,13 @@ socket_t SOCKET_create(short portno)
     /* Bind socket to address and port */
     if(bind(s, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
         perror("Could not bind socket");
-        return -1;
+        return INVALID_SOCKET;
     }
 
     /* Start listening for connections */
     if(listen(s, 10) < 0) {
         perror("Could not listen for connections");
-        return -1;
+        return INVALID_SOCKET;
     }
 
     return s;
@@ -69,7 +60,6 @@ socket_t SOCKET_create(short portno)
 
 socket_t SOCKET_accept(socket_t s, int timeout_ms)
 {
-    socket_t clientfd;
     struct timeval timeout;
     int clilen;
     struct sockaddr_in cli_addr;
@@ -78,32 +68,23 @@ socket_t SOCKET_accept(socket_t s, int timeout_ms)
     timeout.tv_sec = timeout_ms / 1000;
     timeout.tv_usec = (timeout_ms % 1000) * 1000;
 
-#ifdef _WIN32
+    fd_set readSet;
+    FD_ZERO(&readSet);
+    FD_SET(s, &readSet);
+
+    /* check if incomming connection pending */
+    if (select(s+1, &readSet, NULL, NULL, &timeout) == 1)
     {
-        // todo: not thread safe
-        clientfd = -1;
-        fd_set readSet;
-        FD_ZERO(&readSet);
-        FD_SET(s, &readSet);
-
-        /* check if incomming connection pending */
-        if (select(s, &readSet, NULL, NULL, &timeout) == 1)
-        {
-            /* accept connection */
-            clientfd = accept(s, (struct sockaddr *)&cli_addr, &clilen);
-        }
+        /* accept connection */
+        return accept(s, (struct sockaddr *)&cli_addr, &clilen);
     }
-#else
-    setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
-    clientfd = accept(s, (struct sockaddr *)&cli_addr, &clilen);
-#endif
 
-    return clientfd;
+    return INVALID_SOCKET;
 }
 
 int SOCKET_is_valid(socket_t s)
 {
-    return s >= 0;
+    return s != INVALID_SOCKET;
 }
 
 void SOCKET_send(socket_t s, const char *buf, int buflen)
@@ -118,5 +99,9 @@ int SOCKET_recv(socket_t s, char *buf, int bufsize)
 
 void SOCKET_close(socket_t s)
 {
+#ifdef _WIN32
+    closesocket(s);
+#else
     close(s);
+#endif
 }
