@@ -3,6 +3,7 @@
 #include "socket.h"
 
 #ifdef _WIN32
+
 #include "winsock.h"
 int platform_bootstrap(){
     WSADATA wsaData;
@@ -15,15 +16,26 @@ int platform_bootstrap(){
     }
     return 0;
 }
-void close(socket_t s){};
+
+int close(socket_t s){
+    // cleanup
+    shutdown(s, 0);
+    // should wait here, I think.
+    closesocket(s);
+    WSACleanup();
+    return 0;
+};
+
 #else
+
 #include <unistd.h>
 #include <netdb.h>
 #include <netinet/in.h>
 int platform_bootstrap(){
     return 0;
 }
-#endif
+
+#endif //_WIN32
 
 socket_t SOCKET_create(short portno)
 {
