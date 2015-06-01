@@ -11,6 +11,6 @@ set(SRC
 
 add_library(hattop ${SRC})
 IF (WIN32)
-target_link_libraries(hattop WSock32.Lib)
+target_link_libraries(hattop Ws2_32.Lib)
 ENDIF()
 

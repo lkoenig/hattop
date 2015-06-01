@@ -1,16 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include "socket.h"
+#include "assert.h"
 
 #ifdef _WIN32
+#include "winsock2.h"
 
-#include "winsock.h"
 int platform_bootstrap(){
     WSADATA wsaData;
-    int res;
-    // Initialize Winsock
-    res = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (res != 0) {
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         perror("WSAStartup failed");
         return -1;
     }
@@ -18,21 +16,27 @@ int platform_bootstrap(){
 }
 
 int close(socket_t s){
-    // cleanup
-    shutdown(s, 0);
-    // should wait here, I think.
-    closesocket(s);
-    WSACleanup();
-    return 0;
+    return closesocket(s);
 };
 
-#else
+void SOCKET_set_rcv_timeout(socket_t s, int timeout_ms){
+    setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout_ms, sizeof(timeout_ms));
+}
 
+#else
 #include <unistd.h>
 #include <netdb.h>
 #include <netinet/in.h>
+
 int platform_bootstrap(){
     return 0;
+}
+
+void SOCKET_set_rcv_timeout(socket_t s, int timeout_ms){
+    struct timeval timeout;
+    timeout.tv_sec = timeout_ms / 1000;
+    timeout.tv_usec = (timeout_ms % 1000) * 1000;
+    setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
 }
 
 #endif //_WIN32
@@ -44,7 +48,6 @@ socket_t SOCKET_create(short portno)
 
     /* Platform init. */
     if ((s = platform_bootstrap()) < 0) {
-        perror("Could not create socket");
         return -1;
     }
 
@@ -77,18 +80,13 @@ socket_t SOCKET_create(short portno)
 
 socket_t SOCKET_accept(socket_t s, int timeout_ms)
 {
-    socket_t clientfd;
+    socket_t clientfd = 0;
     int clilen;
     struct sockaddr_in cli_addr;
     clilen = sizeof(cli_addr);
 
     /* Set timeout of accept */
-    {
-        struct timeval timeout;
-        timeout.tv_sec = timeout_ms / 1000;
-        timeout.tv_usec = (timeout_ms % 1000) * 1000;
-        setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
-    }
+    SOCKET_set_rcv_timeout(s, timeout_ms);
 
     /* Accept client connection */
     clientfd = accept(s, (struct sockaddr *)&cli_addr, &clilen);
