@@ -61,6 +61,7 @@ static void *hattop_client_thread(void *arg)
 
     REQUEST_parse(state, s, recv_buf);
     SOCKET_close(s);
+    return NULL;
 }
 
 static void *hattop_listen_thread(void *arg)
