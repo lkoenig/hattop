@@ -49,7 +49,7 @@ void MUTEX_lock(mutex_t *mutex)
 void MUTEX_unlock(mutex_t *mutex)
 {
 #ifdef _WIN32
-    ReleaseMutex(*mutex)
+    ReleaseMutex(*mutex);
 #else
     pthread_mutex_unlock(mutex);
 #endif

@@ -39,7 +39,7 @@ static void *hattop_server_thread(void *arg)
     }
 
     while(state->continue_serving) {
-        socket_t s_client = SOCKET_accept(s, 1000);
+        socket_t s_client = SOCKET_accept(s, 100);
         if(SOCKET_is_valid(s_client)) {
             /* Dummy handler for testing */
             char recv_buf[REQUEST_BUF_SIZE];
@@ -63,6 +63,8 @@ static void *hattop_server_thread(void *arg)
             SOCKET_close(s_client);
         }
     }
+
+    return NULL;
 }
 
 int hattop_start_serving(hattop_t *state, short portno)
