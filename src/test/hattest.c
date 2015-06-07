@@ -6,14 +6,24 @@
 
 static int test_id = 0;
 
-void hattest_evaluate(enum hattest_status result, const char * test_name, const char * test_args){
+void _hattest_start_test(const char * test_name, const char * test_args){
     test_id++;
-    printf("%i: %s(%s) ", test_id, test_name, test_args);
+    printf("%i: %s(%s)\n", test_id, test_name, test_args);
+}
+
+void _hattest_eval_test(enum hattest_status result){
     if (result != HATTEST_PASS){
-        printf("FAIL\n");
+        printf("i:\tFAIL\n", test_id);
         exit(test_id);
     }
     else{
-        printf("PASS\n");
+        printf("%i:\tPASS\n", test_id);
+    }
+}
+
+void _hattest_check(int lh, int rh, const char * lhs, const char *rhs){
+    if (lh != rh){
+        printf("%i:\tFAIL (%s != %s)\n", test_id, lhs, rhs);
+        exit(test_id);
     }
 }
