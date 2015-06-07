@@ -12,4 +12,8 @@ struct hattop_uri {
     struct hattop_query_parameters query_parameters;
 };
 
+char * split_after_token(const char * uri, int uri_len, const char * token);
+
+struct hattop_uri * parse_uri(const char * uri);
+
 #endif
