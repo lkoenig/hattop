@@ -24,6 +24,6 @@ int main()
 {
     HATTEST_RUN_TEST(test_split_after_token, "example/uri", NULL, "?");
     HATTEST_RUN_TEST(test_split_after_token, "example/uri?with=param", "with=param", "?");
-    HATTEST_RUN_TEST(test_parse_uri, "example/uri?with=param&et=cetera&the=end");
+    HATTEST_RUN_TEST(test_parse_uri, "example/uri?with=param&et=cetera&noval&the=end");
     return 0;
 }

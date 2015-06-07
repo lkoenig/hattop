@@ -14,11 +14,13 @@ char * split_after_token(const char * uri, int uri_len, const char * token){
 struct hattop_uri * parse_uri(const char * uristr){
     struct hattop_uri * uri = NULL;
 
+    // path sanitation
+
     char * query = split_after_token(uristr, strlen(uristr), "?");
 
+    /* Parse query string */
     if (query){
         int param = 0;
-        int i;
         char * key = query;
         char * value = NULL;
 
@@ -30,7 +32,7 @@ struct hattop_uri * parse_uri(const char * uristr){
 
     }
 
-    uri = malloc(sizeof(struct hattop_uri));
+    // post process, symbol expansion
 
     return uri;
 }
