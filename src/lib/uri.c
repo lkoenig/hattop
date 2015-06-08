@@ -60,13 +60,11 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
         char * last_key = NULL;
 
         if (querystr == uristr + uristrlen){
-            hattop_uri_destroy(uri);
-            return NULL; // BAD URI, has '?' but nothing after
+            goto bad_uri; //'?' has nothing after
         }
 
         if (split_after_token(querystr, uristrlen - (querystr - uristr), '?')){
-            hattop_uri_destroy(uri);
-            return NULL; // BAD URI, has at least two '?'
+            goto bad_uri; // at least two '?'
         }
 
         uri->path = copy_and_sanitize_string(uristr, querystr - uristr - 1);
@@ -76,11 +74,14 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
             key = split_after_token(key, uristrlen - (key - uristr), '&');
             i++;
             if (key == last_key + 1){
-                hattop_uri_destroy(uri);
-                return NULL; // BAD URI, has at least two consecutive '&'
+                goto bad_uri; // at least two consecutive '&'
             }
             last_key = key;
         } while (key);
+
+        if (last_key == uristr + uristrlen){
+            goto bad_uri; // last '&' has nothing after
+        }
 
         uri->query_parameters.num = i;
         uri->query_parameters.keys = calloc(uri->query_parameters.num, sizeof(char *));
@@ -105,8 +106,7 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
             if (value){
                 char * next_value = split_after_token(value, uristrlen - (value - uristr), '=');
                 if (next_value != NULL && next_value < next_key){
-                    hattop_uri_destroy(uri);
-                    return NULL; // BAD URI, parameter has at least two '='
+                    goto bad_uri; // parameter has at least two '='
                 }
 
                 key_len = value - key - 1;
@@ -123,8 +123,7 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
                 }
             }
             else{
-                hattop_uri_destroy(uri);
-                return NULL; // BAD URI, parameter has a key of length 0
+                goto bad_uri; // parameter has a key of length 0
             }
 
             key = next_key;
@@ -137,4 +136,9 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
     }
 
     return uri;
+
+bad_uri:
+    hattop_uri_destroy(uri);
+    return NULL;
+
 }

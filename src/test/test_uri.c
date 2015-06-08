@@ -77,5 +77,7 @@ int main()
 
     HATTEST_RUN_TEST(test_hattop_uri_create, "example/uri?with=param&=cetera", &test_hattop_uri_create_eval_null);
 
+    HATTEST_RUN_TEST(test_hattop_uri_create, "example/uri?with=param&et=cetera&", &test_hattop_uri_create_eval_null);
+
     return 0;
 }
