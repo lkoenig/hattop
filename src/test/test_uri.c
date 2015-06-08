@@ -21,28 +21,28 @@ enum hattest_status test_hattop_uri_create(const char * uristr, struct hattop_ur
     struct hattop_uri * uri = hattop_uri_create(uristr);
 
     if (expected == NULL){
-        HATTEST_CHECK_EQ((int)uri, (int)NULL);
+        HATTEST_CHECK_EQ(uri, (struct hattop_urip *)NULL);
     }
     else{
         int i;
 
-        HATTEST_CHECK_EQ((int)uri->path == (int)NULL, 0);
+        HATTEST_CHECK_EQ(uri->path == (char *)NULL, 0);
         HATTEST_CHECK_EQ(strcmp(uri->path, expected->path), 0);
 
         HATTEST_CHECK_EQ(uri->query_parameters.num, expected->query_parameters.num);
         for (i = 0; i < expected->query_parameters.num; i++){
-            if ((int)expected->query_parameters.keys[i] == (int)NULL){
-                HATTEST_CHECK_EQ((int)uri->query_parameters.keys[i], (int)NULL);
+            if (expected->query_parameters.keys[i] == (char *)NULL){
+                HATTEST_CHECK_EQ(uri->query_parameters.keys[i], (char *)NULL);
             }
             else{
-                HATTEST_CHECK_EQ((int)uri->query_parameters.keys[i] == (int)NULL, 0);
+                HATTEST_CHECK_EQ(uri->query_parameters.keys[i] == (char *)NULL, 0);
                 HATTEST_CHECK_EQ(strcmp(uri->query_parameters.keys[i], expected->query_parameters.keys[i]), 0);
             }
-            if ((int)expected->query_parameters.values[i] == (int)NULL){
-                HATTEST_CHECK_EQ((int)uri->query_parameters.values[i], (int)NULL);
+            if (expected->query_parameters.values[i] == (char *)NULL){
+                HATTEST_CHECK_EQ(uri->query_parameters.values[i], (char *)NULL);
             }
             else{
-                HATTEST_CHECK_EQ((int)uri->query_parameters.values[i] == (int)NULL, 0);
+                HATTEST_CHECK_EQ(uri->query_parameters.values[i] == (char *)NULL, 0);
                 HATTEST_CHECK_EQ(strcmp(uri->query_parameters.values[i], expected->query_parameters.values[i]), 0);
             }
         }

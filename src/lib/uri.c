@@ -102,7 +102,7 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
             char * next_key = move_to_after_token(key, uristrlen - (key - uristr), '&');
             if (next_key == NULL){
                 assert(i == uri->query_parameters.num-1);
-                next_key = uristr + uristrlen + 1; // a bit dangerous?
+                next_key = (char *)uristr + uristrlen + 1; // a bit dangerous?
             }
 
             value = move_to_after_token(key, next_key - key, '=');
