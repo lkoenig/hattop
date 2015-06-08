@@ -52,8 +52,10 @@ enum hattest_status test_hattop_uri_create(const char * uristr, struct hattop_ur
     return HATTEST_PASS;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+    hattest_start(argc, argv);
+
     HATTEST_RUN_TEST(test_move_to_after_token, "/example/uri", NULL, '?');
     HATTEST_RUN_TEST(test_move_to_after_token, "/example/uri?", "", '?');
     HATTEST_RUN_TEST(test_move_to_after_token, "/example/uri?with=param", "with=param", '?');
@@ -62,6 +64,9 @@ int main()
 
     HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri?", NULL);
     HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri??", NULL);
+
+    HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri", NULL);
+
     HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri?hello==there&bla", NULL);
     HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri?hello==there", NULL);
 
@@ -101,5 +106,6 @@ int main()
 
     HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri?with=param&et=cetera&", NULL);
 
+    hattest_exit();
     return 0;
 }
