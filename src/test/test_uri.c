@@ -65,6 +65,9 @@ int main()
     HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri?hello==there&bla", NULL);
     HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri?hello==there", NULL);
 
+    HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri?hello=there=wtf", NULL);
+    HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri?hello=there=wtf&kthxbye", NULL);
+
     {
         struct hattop_uri exp;
         exp.path = "/example/uri"; exp.query_parameters.num = 0;
