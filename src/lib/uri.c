@@ -1,6 +1,7 @@
 #include "uri.h"
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 char * split_after_token(const char * uri, int uri_len, char token){
     char * start = strchr(uri, token);
@@ -10,7 +11,7 @@ char * split_after_token(const char * uri, int uri_len, char token){
         }
     }
     return NULL;
-};
+}
 
 void hattop_uri_destroy(struct hattop_uri * uri){
     int i = 0;
@@ -88,26 +89,25 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
             int val_len = 0;
 
             char * next_key = split_after_token(key, uristrlen - (key - uristr), '&');
+            if (next_key == NULL){
+                assert(i == uri->query_parameters.num-1);
+                next_key = uristr + uristrlen + 1;
+            }
 
-            if (next_key){
-                value = split_after_token(key, next_key - key, '=');
-            }
-            else{
-                value = split_after_token(key, uristrlen - (key - uristr), '=');
-            }
+            value = split_after_token(key, next_key - key, '=');
 
             if (value){
                 char * next_value = split_after_token(value, uristrlen - (value - uristr), '=');
-                if (next_value != NULL && (next_value < (next_key ? next_key : uristr + uristrlen))){
+                if (next_value != NULL && next_value < next_key){
                     hattop_uri_destroy(uri);
                     return NULL; // BAD URI, parameter has at least two '='
                 }
 
                 key_len = value - key - 1;
-                val_len = next_key ? next_key - value - 1 : uristrlen - (value - uristr);
+                val_len = next_key - value - 1;
             }
             else{
-                key_len = next_key ? next_key - key - 1 : uristrlen - (key - uristr);
+                key_len = next_key - key - 1;
             }
 
             if (key_len){
