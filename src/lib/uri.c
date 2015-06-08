@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-char * split_after_token(const char * uri, int uri_len, char token){
+char * move_to_after_token(const char * uri, int uri_len, char token){
     char * start = strchr(uri, token);
     if (start != NULL){
         if (start < uri + uri_len){
@@ -47,7 +47,7 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
     struct hattop_uri * uri = NULL;
 
     int uristrlen = strlen(uristr);
-    char * querystr = split_after_token(uristr, uristrlen, '?');
+    char * querystr = move_to_after_token(uristr, uristrlen, '?');
 
     if (*uristr != '/'){
         goto bad_uri;
@@ -67,7 +67,7 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
             goto bad_uri; //'?' has nothing after
         }
 
-        if (split_after_token(querystr, uristrlen - (querystr - uristr), '?')){
+        if (move_to_after_token(querystr, uristrlen - (querystr - uristr), '?')){
             goto bad_uri; // at least two '?'
         }
 
@@ -75,7 +75,7 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
 
         /* how many parameters */
         do{
-            key = split_after_token(key, uristrlen - (key - uristr), '&');
+            key = move_to_after_token(key, uristrlen - (key - uristr), '&');
             i++;
             if (key == last_key + 1){
                 goto bad_uri; // at least two consecutive '&'
@@ -99,16 +99,16 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
             int key_len = 0;
             int val_len = 0;
 
-            char * next_key = split_after_token(key, uristrlen - (key - uristr), '&');
+            char * next_key = move_to_after_token(key, uristrlen - (key - uristr), '&');
             if (next_key == NULL){
                 assert(i == uri->query_parameters.num-1);
                 next_key = uristr + uristrlen + 1; // a bit dangerous?
             }
 
-            value = split_after_token(key, next_key - key, '=');
+            value = move_to_after_token(key, next_key - key, '=');
 
             if (value){
-                char * next_value = split_after_token(value, uristrlen - (value - uristr), '=');
+                char * next_value = move_to_after_token(value, uristrlen - (value - uristr), '=');
                 if (next_value != NULL && next_value < next_key){
                     goto bad_uri; // parameter has at least two '='
                 }
