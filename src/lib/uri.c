@@ -36,6 +36,13 @@ void hattop_uri_destroy(struct hattop_uri * uri){
     free(uri);
 }
 
+char * copy_and_sanitize_string(const char * string, int string_length){
+    char * dst = calloc(string_length + 1, sizeof(char));
+    // do the allowed cleanup of strings in here
+    memcpy(dst, string, string_length);
+    return dst;
+}
+
 struct hattop_uri * hattop_uri_create(const char * uristr){
     struct hattop_uri * uri = NULL;
 
@@ -62,8 +69,7 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
             return NULL; // BAD URI, has at least two '?'
         }
 
-        uri->path = calloc(querystr - uristr, sizeof(char));
-        memcpy(uri->path, uristr, querystr - uristr - 1);
+        uri->path = copy_and_sanitize_string(uristr, querystr - uristr - 1);
 
         /* how many parameters */
         do{
@@ -111,11 +117,9 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
             }
 
             if (key_len){
-                uri->query_parameters.keys[i] = calloc(key_len + 1, sizeof(char));
-                memcpy(uri->query_parameters.keys[i], key, key_len);
+                uri->query_parameters.keys[i] = copy_and_sanitize_string(key, key_len);
                 if (val_len){
-                    uri->query_parameters.values[i] = calloc(val_len + 1, sizeof(char));
-                    memcpy(uri->query_parameters.values[i], value, val_len);
+                    uri->query_parameters.values[i] = copy_and_sanitize_string(value, val_len);
                 }
             }
             else{
@@ -129,8 +133,7 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
     }
     else{
         // no query string, but path is ok
-        uri->path = calloc(uristrlen + 1, sizeof(char));
-        strcpy(uri->path, uristr);
+        uri->path = copy_and_sanitize_string(uristr, uristrlen);
     }
 
     return uri;
