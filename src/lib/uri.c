@@ -49,6 +49,10 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
     int uristrlen = strlen(uristr);
     char * querystr = split_after_token(uristr, uristrlen, '?');
 
+    if (*uristr != '/'){
+        goto bad_uri;
+    }
+
     uri = malloc(sizeof(struct hattop_uri));
     uri->query_parameters.num = 0;
     uri->path = NULL;
