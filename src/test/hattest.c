@@ -23,7 +23,7 @@ void _hattest_eval_test(enum hattest_status result){
 
 void _hattest_check(int lh, int rh, const char * lhs, const char *rhs){
     if (lh != rh){
-        printf("%i:\tFAIL (%s != %s)\n", test_id, lhs, rhs);
+        printf("%i:\tFAIL (%s [%i] != %s [%i])\n", test_id, lhs, lh, rhs, rh);
         exit(test_id);
     }
 }
