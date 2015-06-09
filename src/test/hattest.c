@@ -79,7 +79,7 @@ void hattest_start(int argc, char *argv[]){
         char * key = argv[i];
         char * val = argv[i+1];
 
-        if(strcmp(key, "--run") == 0){
+        if(strcmp(key, "--mode") == 0){
             if(strcmp(val, "all") == 0){
                 run_mode = run_all;
             }
