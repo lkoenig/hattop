@@ -66,7 +66,7 @@ int main()
 
     hattop_register_handler(srv, &handler);
 
-    hattop_start_serving(srv, 8081);
+    hattop_start_serving(srv, 8080);
     printf("Press RETURN to quit\n");
     getchar();
     printf("Exiting");
