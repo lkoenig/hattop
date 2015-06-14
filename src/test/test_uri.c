@@ -65,8 +65,6 @@ int main(int argc, char *argv[])
     HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri?", NULL);
     HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri??", NULL);
 
-    HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri", NULL);
-
     HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri?hello==there&bla", NULL);
     HATTEST_RUN_TEST(test_hattop_uri_create, "/example/uri?hello==there", NULL);
 

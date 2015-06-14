@@ -13,7 +13,7 @@ char * move_to_after_token(const char * uri, int uri_len, char token){
     return NULL;
 }
 
-void hattop_uri_destroy(struct hattop_uri * uri){
+void hattop_uri_destroy(hattop_uri * uri){
     int i = 0;
 
     if (uri == NULL){
@@ -43,8 +43,8 @@ char * copy_and_sanitize_string(const char * string, int string_length){
     return dst;
 }
 
-struct hattop_uri * hattop_uri_create(const char * uristr){
-    struct hattop_uri * uri = NULL;
+hattop_uri * hattop_uri_create(const char * uristr){
+    hattop_uri * uri = NULL;
 
     int uristrlen = strlen(uristr);
     char * querystr = move_to_after_token(uristr, uristrlen, '?');
@@ -53,7 +53,7 @@ struct hattop_uri * hattop_uri_create(const char * uristr){
         goto bad_uri;
     }
 
-    uri = malloc(sizeof(struct hattop_uri));
+    uri = malloc(sizeof(hattop_uri));
     uri->query_parameters.num = 0;
     uri->path = NULL;
 
