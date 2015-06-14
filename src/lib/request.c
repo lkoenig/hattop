@@ -72,8 +72,8 @@ void REQUEST_parse(hattop_t *state, socket_t s, const char *request)
         }
     }
 
-    if(state->handler) {
-        state->handler((void*)&s, uri);
+    if(state->handler && state->handler->handle) {
+        state->handler->handle(state->handler->state, (void*)&s, uri);
     } else {
         hattop_response_error((void*)&s, 500);
     }

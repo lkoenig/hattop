@@ -10,7 +10,7 @@ typedef struct hattop_t
     thread_t server_thread;
     short portno;
     int continue_serving;
-    handler_t handler;
+    handler_t *handler;
 } hattop_t;
 
 #endif

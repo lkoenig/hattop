@@ -2,7 +2,11 @@
 #include <string.h>
 #include "hattop.h"
 
-void handler(void *connection, const char *uri)
+struct demo_state{
+    int requests;
+};
+
+void demo_handle(void *state, void *connection, const char *uri)
 {
     char buffer[2048];
     const char* hattop_asci_logo =
@@ -13,7 +17,10 @@ void handler(void *connection, const char *uri)
     "  www   \n"
     ".HaTToP \n";
 
-    sprintf(buffer, "<html><body>Document: %s<br/><br/><hr/><pre>%s</pre></body></html>", uri, hattop_asci_logo);
+    struct demo_state * h_state = (struct demo_state *)state;
+    h_state->requests++;
+
+    sprintf(buffer, "<html><body>Document: %s<br/><br/><hr/><pre>%s \nrequests: %i</pre></body></html>", uri, hattop_asci_logo, h_state->requests);
 
     hattop_response_simple(connection, "text/html", buffer, strlen(buffer));
 }
@@ -21,6 +28,12 @@ void handler(void *connection, const char *uri)
 int main()
 {
     hattop_t *srv;
+    handler_t handler;
+
+    struct demo_state handler_state;
+    handler_state.requests = 0;
+    handler.handle = demo_handle;
+    handler.state = &handler_state;
 
     printf("hattop demo\n");
 
@@ -30,7 +43,7 @@ int main()
         return 1;
     }
 
-    hattop_register_handler(srv, handler);
+    hattop_register_handler(srv, &handler);
 
     hattop_start_serving(srv, 8080);
     printf("Press RETURN to quit\n");

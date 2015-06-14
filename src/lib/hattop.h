@@ -1,10 +1,17 @@
 #ifndef HATTOP_H
 #define HATTOP_H
 
-/* Request Handler */
-typedef void (*handler_t)(void *connection, const char *uri);
-
 typedef struct hattop_t hattop_t;
+
+/* Request handle */
+typedef void (*handle_t)(void * state, void *connection, const char *uri);
+
+/* Request handler */
+typedef struct handler_t
+{
+    handle_t handle;
+    void * state;
+} handler_t;
 
 /* Create an web server instance */
 hattop_t *hattop_create();
@@ -13,7 +20,7 @@ hattop_t *hattop_create();
 void hattop_destroy(hattop_t *state);
 
 /* Install a handler for incoming requests */
-void hattop_register_handler(hattop_t *state, handler_t handler);
+void hattop_register_handler(hattop_t *state, handler_t *handler);
 
 /* Start listening for connections */
 int hattop_start_serving(hattop_t *state, short portno);

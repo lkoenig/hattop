@@ -29,7 +29,7 @@ void hattop_destroy(hattop_t *state)
     free((void*)state);
 }
 
-void hattop_register_handler(hattop_t *state, handler_t handler)
+void hattop_register_handler(hattop_t *state, handler_t *handler)
 {
     state->handler = handler;
 }
