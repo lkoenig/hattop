@@ -65,9 +65,9 @@ void _hattest_eval_test(enum hattest_status result){
     }
 }
 
-void _hattest_check(int lh, int rh, const char * lhs, const char *rhs){
-    if (lh != rh){
-        printf("%sFAIL%s (%s [%i] != %s [%i])\n", ANSI_COLOR_RED, ANSI_COLOR_RESET, lhs, lh, rhs, rh);
+void _hattest_check(int condition, const char *condition_string){
+    if ( ! condition){
+        printf("%sFAIL%s (%s is false - %d )\n", ANSI_COLOR_RED, ANSI_COLOR_RESET, condition_string, condition);
         _hattest_abort();
     }
 }

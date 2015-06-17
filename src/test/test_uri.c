@@ -8,11 +8,11 @@ char * move_to_after_token(const char * uri, int uri_len, char token);
 enum hattest_status test_move_to_after_token(const char * uri, const char * query, char token){
     char * query_ret = move_to_after_token(uri, strlen(uri), token);
     if (query != NULL){
-        HATTEST_CHECK_EQ(query_ret == NULL, 0);
-        HATTEST_CHECK_EQ(strcmp(query, query_ret), 0);
+        HATTEST_CHECK(query_ret != NULL);
+        HATTEST_CHECK(strcmp(query, query_ret) == 0);
     }
     else if(query == NULL){
-        HATTEST_CHECK_EQ((int)query_ret, (int)NULL);
+        HATTEST_CHECK(query_ret == NULL);
     }
     return HATTEST_PASS;
 }
@@ -21,29 +21,29 @@ enum hattest_status test_hattop_uri_create(const char * uristr, struct hattop_ur
     struct hattop_uri * uri = hattop_uri_create(uristr);
 
     if (expected == NULL){
-        HATTEST_CHECK_EQ(uri, (struct hattop_urip *)NULL);
+        HATTEST_CHECK( uri == (struct hattop_uri *) NULL);
     }
     else{
         int i;
 
-        HATTEST_CHECK_EQ(uri->path == (char *)NULL, 0);
-        HATTEST_CHECK_EQ(strcmp(uri->path, expected->path), 0);
+        HATTEST_CHECK(uri->path != (char *)NULL);
+        HATTEST_CHECK(strcmp(uri->path, expected->path) == 0);
 
-        HATTEST_CHECK_EQ(uri->query_parameters.num, expected->query_parameters.num);
+        HATTEST_CHECK(uri->query_parameters.num == expected->query_parameters.num);
         for (i = 0; i < expected->query_parameters.num; i++){
             if (expected->query_parameters.keys[i] == (char *)NULL){
-                HATTEST_CHECK_EQ(uri->query_parameters.keys[i], (char *)NULL);
+                HATTEST_CHECK(uri->query_parameters.keys[i] == (char *)NULL);
             }
             else{
-                HATTEST_CHECK_EQ(uri->query_parameters.keys[i] == (char *)NULL, 0);
-                HATTEST_CHECK_EQ(strcmp(uri->query_parameters.keys[i], expected->query_parameters.keys[i]), 0);
+                HATTEST_CHECK(uri->query_parameters.keys[i] != (char *)NULL);
+                HATTEST_CHECK(strcmp(uri->query_parameters.keys[i], expected->query_parameters.keys[i]) == 0);
             }
             if (expected->query_parameters.values[i] == (char *)NULL){
-                HATTEST_CHECK_EQ(uri->query_parameters.values[i], (char *)NULL);
+                HATTEST_CHECK(uri->query_parameters.values[i] == (char *)NULL);
             }
             else{
-                HATTEST_CHECK_EQ(uri->query_parameters.values[i] == (char *)NULL, 0);
-                HATTEST_CHECK_EQ(strcmp(uri->query_parameters.values[i], expected->query_parameters.values[i]), 0);
+                HATTEST_CHECK(uri->query_parameters.values[i] != (char *)NULL);
+                HATTEST_CHECK(strcmp(uri->query_parameters.values[i], expected->query_parameters.values[i]) == 0);
             }
         }
     }
